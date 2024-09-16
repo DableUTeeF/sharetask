@@ -25,7 +25,6 @@ class iterator:
             data['total'] = len(self)
         if finished:
             data['finished'] = True
-        print(data)
         requests.post(
             'http://linebot.dableuteef.com/',
             data=json.dumps(data),
