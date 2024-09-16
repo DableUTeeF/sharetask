@@ -3,8 +3,9 @@ import json
 
 
 class iterator:
-    def __init__(self, iterable, total=None):
+    def __init__(self, iterable, interval=1, total=None):
         self.iterable = iterable
+        self.interval = interval
         self.total = total
 
     def __len__(self):
@@ -13,7 +14,7 @@ class iterator:
             else self.iterable.shape[0] if hasattr(self.iterable, "shape")
             else len(self.iterable) if hasattr(self.iterable, "__len__")
             else self.iterable.__length_hint__() if hasattr(self.iterable, "__length_hint__")
-            else getattr(self, "total", None)
+            else 0
         )
 
     def send(self, n, finished=False):
@@ -24,10 +25,11 @@ class iterator:
             data['total'] = len(self)
         if finished:
             data['finished'] = True
+        print(data)
         requests.post(
-            'https://iterator.dableuteef.com/apis/iterator',
+            'http://linebot.dableuteef.com/',
             data=json.dumps(data),
-            headers={'Content-Type': 'application/json; charset=UTF-8', 'Authorization': authorization}
+            # headers={'Content-Type': 'application/json; charset=UTF-8', 'Authorization': authorization}
         )
 
     def __iter__(self):
@@ -36,6 +38,8 @@ class iterator:
         try:
             for obj in iterable:
                 yield obj
-                self.send(n)
+                n += 1
+                if n % self.interval == 0:
+                    self.send(n)
         finally:
             self.send(n, finished=True)
